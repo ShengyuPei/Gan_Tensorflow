@@ -7,8 +7,8 @@ import os
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
-if not os.path.exists("samples/"):
-    os.mkdir("samples/")
+if not os.path.exists("resules/"):
+    os.mkdir("resules/")
 
 total_epoch = 200
 batch_size = 100

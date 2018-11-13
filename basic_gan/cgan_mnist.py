@@ -7,7 +7,8 @@ from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
 #########
-
+if not os.path.exists("resules/"):
+    os.mkdir("resules/")
 ######
 total_epoch = 100
 batch_size = 100
@@ -58,6 +59,18 @@ def discriminator(inputs, labels, reuse=None):
 def get_noise(batch_size, n_noise):
     return np.random.uniform(-1., 1., size=[batch_size, n_noise])
 
+def plot(loss):
+    
+    x = range(len(loss['D']))
+    y1 = loss['D']
+    y2 = loss['G']
+    plt.plot(x, y1, label='D loss')
+    plt.plot(x, y2, label='G loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.legend(loc=4)
+    plt.savefig('save/loss.png', bbox_inches='tight')
+
 
 G = generator(Z, Y)
 D_real = discriminator(X, Y)
@@ -97,7 +110,12 @@ sess.run(tf.global_variables_initializer())
 total_batch = int(mnist.train.num_examples/batch_size)
 loss_val_D, loss_val_G = 0, 0
 
+loss['D'] = []
+loss['G'] = []
+
 for epoch in range(total_epoch):
+    loss_Dis = []
+    loss_Gen = []
     for i in range(total_batch):
         batch_xs, batch_ys = mnist.train.next_batch(batch_size)
         noise = get_noise(batch_size, n_noise)
@@ -106,7 +124,11 @@ for epoch in range(total_epoch):
                                  feed_dict={X: batch_xs, Y: batch_ys, Z: noise})
         _, loss_val_G = sess.run([train_G, loss_G],
                                  feed_dict={Y: batch_ys, Z: noise})
-
+        loss_Dis.append(loss_val_D)
+        loss_Gen.append(loss_val_G)
+    loss['D'].append(np.mean(loss_Dis))
+    loss['G'].append(np.mean(loss_Gen))
+    
     print('Epoch:', '%04d' % epoch,
           'D loss: {:.4}'.format(loss_val_D),
           'G loss: {:.4}'.format(loss_val_G))
@@ -130,7 +152,7 @@ for epoch in range(total_epoch):
             ax[0][i].imshow(np.reshape(mnist.test.images[i], (28, 28)))
             ax[1][i].imshow(np.reshape(samples[i], (28, 28)))
 
-        plt.savefig('samples2/{}.png'.format(str(epoch).zfill(3)), bbox_inches='tight')
+        plt.savefig('result/{}.png'.format(str(epoch).zfill(3)), bbox_inches='tight')
         plt.close(fig)
-
+plot(loss)
 print('Finished!')
