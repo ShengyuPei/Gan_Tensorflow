@@ -102,6 +102,7 @@ def plot(loss):
     plt.plot(x, y2, label='G loss')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
+    plt.legend(loc=4)
     plt.savefig('save/loss.png', bbox_inches='tight')
     
 loss['D'] = []
